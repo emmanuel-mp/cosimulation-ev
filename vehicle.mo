@@ -27,7 +27,6 @@ Real Fr; //Force Rolling Resistance
 Real Fg; //Grade Resistance due to slope (+ uphill, - downhill)
 Real W; //weight of the car
 
-Real dT = 10;
 
 parameter Real Mass_car = 930; //kg; kerb weight of the car: weight without occupants or baggage
 parameter Real g = 9.81;
@@ -42,7 +41,7 @@ parameter Real drag_coef = 0.455; //average of range provided in book
 
 equation
  
-  acceleration = der(speed_car)*dT;
+  acceleration = der(speed_car);
   
   Fd = rho * cross_sect_area * drag_coef * (speed_car - speed_wind)^2;
   

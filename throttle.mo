@@ -28,7 +28,7 @@ if driver_pedal > 0 then //positive driver acceleration means current positive -
 
 voltage = (voltage_sc_max / (2 * current_sc_max))*current_sc + volt_top1;
 current_delivered = current_fc + current_sc;
-throttle = current_delivered / (current_sc_max + current_fc); //use current_fc or current_fc_max ???
+throttle = current_delivered / (current_sc_max + current_fc); 
 
 
 
@@ -44,8 +44,7 @@ else
 
 voltage = (voltage_sc_max / (2 * current_sc_max))*current_sc + volt_top2;
 current_delivered = current_fc + current_sc;
-throttle = current_delivered / (current_sc_max + current_fc_max); //use current_fc or current_fc_max ???
-
+throttle = current_delivered / (current_sc_max + current_fc_max); 
 
 
 end if;
