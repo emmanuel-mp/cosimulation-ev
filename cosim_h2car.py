@@ -18,6 +18,7 @@ from TrajectoryFileHandler import*
 import numpy as np
 import seaborn as sns
 import pandas as pd
+from matplotlib import pyplot as plt 
 
 
 ## INDICATE NAME OF TXT FILE WITH GPS TRACES
@@ -25,16 +26,13 @@ import pandas as pd
 trajectory_file = 'gps_ProvencalENSEM.txt'
 trajectory_handler(trajectory_file) #file to be cleansed and slope to be extracted
 
-
 #
 #       CO-SIMULATION
 #
 
 
-
-
 #Import all the FMUs from OpenModelica
-path1 = 'new_electric.fmu' #'electric_model.fmu'
+path1 = 'new_electric.fmu' 
 path2 = 'throttle.fmu'
 
 
@@ -49,18 +47,16 @@ time_list = [] #storing the co-sim time
 
 
 #Create a Sinusoidal Curve plot to represent the slope 
-x = np.linspace(-np.pi, np.pi, int((stop_time/step_size)+1)) #the number of points to be created depend on the step_size
-slope_1 = 5 * np.sin(x) #between -5 and 5 by inspection of the slope curve
+points = np.linspace(-np.pi, np.pi, int((stop_time/step_size)+1)) #the number of points to be created depend on the step_size
+slope_1 = 5 * np.sin(points) #between -5 and 5 by inspection of the slope curve
 
 #Sinusoidal driver acceleration
-acceleration_sine = 0.7 * np.sin(x)
-
+acceleration_sine = 0.7 * np.sin(points)
 
 
 #------------- ELECTRIC MODEL: INPUTS(CURRENT DELIVERED); OUTPUTS(VOLTAGE SC, CURRENT SC) -----------------------------------------
 electric_model = myFMU(path1)
 electric_model.init(startTime, [('current_delivered', 0)])
-#electric_model.init(startTime, [('slope', 0.4)])
 
 #Store the results from the co-sim
 soc_2 = []
@@ -88,8 +84,7 @@ while time < stop_time:
     
     electric_model.doStep(time, step_size)
 
- 
-    
+     
     #ASSIGN A DRIVER ACCELERATION WITH A STEPWISE FUNCTION   
     if time <= 3:
         driver.append(0)
@@ -103,11 +98,8 @@ while time < stop_time:
     else:
         driver.append(1)
         
-   
     
     #ELECTRIC MODEL
-    #electric_model.set("driver_pedal", driver[stepNb]) #driver[stepNb] acceleration_sine[stepNb]
-    #electric_model.set('slope', slope_1[stepNb]) #slope chanfing with time #slope_1[stepNb] #slope_1[stepNb]
 
     volt_val_2 = electric_model.get('voltage')      
     voltage_2.append(volt_val_2)
@@ -117,12 +109,9 @@ while time < stop_time:
     current_sc_2.append(current_val_2)
     current_delivered_val = electric_model.get('current_delivered')      
     current_delivered.append(current_delivered_val)
-    
-    
-    
+      
     
     throttle.doStep(time, step_size)
-    
     
     
     #throttle
@@ -149,18 +138,14 @@ while time < stop_time:
 #SAVE THROTTLE AND DRIVER ACCELERATION IN CSV FILE
 
 df = pd.DataFrame()
-#df['Time'] = time_list
+df['Time'] = time_list
 df['Throttle'] = supercapa_throttle
-#df['Driver Acc'] = driver
-
+df['Driver Acc'] = driver
 df.to_csv('throttle.txt', header = True, index=False, sep= '\t')
 
 
 
-
-#PLOTS ELECTRIC MODEL
-sns.set_theme(style="whitegrid") #whitegrid #dark #ticks #darkgrid
-
+#PLOTS Electric Model
 
 plt.plot(time_list, current_delivered, color='green', label='Current Delivered')
 plt.title('Current Delivered to Motor as a function of Time')
@@ -198,8 +183,8 @@ plt.show()
 
 
 
+
 #PLOTS Throttle
-sns.set_theme(style="dark") #whitegrid #dark #ticks #darkgrid
 
 plt.plot(time_list, supercapa_throttle, color='orange', label='Throttle')
 plt.title('Throttle Sent to Motor as a function of Time')
